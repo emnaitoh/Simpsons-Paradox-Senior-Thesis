@@ -1,0 +1,8 @@
+cff-version: 1.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Naitoh
+    given-names: Emily
+title: "Simpson's Paradox and Casuality Scripps Senior Thesis"
+date-released: 2022-12-7
+url: "https://github.com/emnaitoh/Simpsons-Paradox-Senior-Thesis.git"
