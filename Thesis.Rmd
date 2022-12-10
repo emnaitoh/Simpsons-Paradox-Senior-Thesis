@@ -1,0 +1,352 @@
+---
+title: "Senior Thesis"
+author: "Emily Naitoh"
+date: "2022-11-02"
+output: html_document
+---
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(ascentTraining)
+```
+Residuals Randomly generated data
+```{r}
+n = 15
+b0 = 0
+b1 = 1.3
+x.rss = runif(n,min=0,max=5)
+e = rnorm(n, mean = 0, sd =1)
+y.rss = b0 + b1*x.rss + e
+d.rss = data.frame(cbind(x.rss,y.rss))
+fit=lm(y.rss~x.rss,d.rss)
+d.rss$p.rss = predict(fit)
+d.rss$r.rss = residuals(fit)
+dsave = d.rss
+```
+Residual plot
+```{r}
+plt = ggplot(dsave, aes(x.rss,y.rss)) +
+  geom_point(color="deepskyblue3")
+
+plt +
+  geom_smooth(se=FALSE,method='lm',color="Orange")+
+  geom_segment(aes(x=x.rss,y=y.rss,xend = x.rss, yend = p.rss), data = dsave,color="cyan3")+
+  xlab("Predictor")+ylab("Response")+
+  ggtitle("Response and Predictor with Regression and Residuals")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+Adoption Problem:
+```{r}
+# a is adopted
+# n is not adopted
+# t is total
+
+#shelter 1
+dog1a = 9
+dog1n = 4
+dog1t = dog1a+dog1n
+cat1a = 94
+cat1n = 76
+cat1t = cat1a+cat1n
+shelter1a = dog1a+cat1a
+shelter1n = dog1n+cat1n
+shelter1t = shelter1a+shelter1n
+
+#shelter 2
+dog2a =31
+dog2n =16
+dog2t =dog2a+dog2n
+cat2a =70
+cat2n =60
+cat2t =cat2a+cat2n
+shelter2a =dog2a+cat2a
+shelter2n =dog2n+cat2n
+shelter2t =shelter2a+shelter2n
+
+# percent adopted
+d1 = 100*(dog1a/dog1t)
+  
+c1 = 100*(cat1a/cat1t)
+
+t1 = 100*(shelter1a/shelter1t)
+  
+d2 = 100*(dog2a/dog2t)
+  
+c2 = 100*(cat2a/cat2t)
+
+t2 = 100*(shelter2a/shelter2t)
+  
+shelter = c(rep("shelter 1" , 3) , rep("shelter 2" , 3))
+type = rep(c("dog" , "cat", 'total') , 2)
+percent_adopted= c(d1,c1,t1,d2,c2,t2)
+adoptdata = data.frame(shelter,type,percent_adopted)
+ 
+# group bar chart
+ggplot(adoptdata, aes(fill=type, y=percent_adopted, x=shelter)) +
+  geom_col(width = 0.5, position = 'dodge')+
+  geom_text(label=round(percent_adopted),vjust = 1.5, position = position_dodge(.5))
+```
+Iris dataset: graphical example
+```{r}
+data(iris)
+head(iris)
+ggplot(iris,aes(x=Sepal.Length,y=Sepal.Width))+
+  geom_point()+
+  geom_smooth(method='lm',se=FALSE)
+ggplot(iris,aes(x=Sepal.Length,y=Sepal.Width,color=Species))+
+  geom_point()+
+  geom_smooth(method='lm',se=FALSE,linetype="twodash")+
+  geom_smooth(aes(x=Sepal.Length,y=Sepal.Width),method='lm',se=FALSE,color="Orange")
+```
+Creating SP with generated data
+```{r}
+## Not SP Random Data
+# Subgroup A
+nA = 250
+beta0A = 30
+beta1A = -18
+XA = runif(nA,min=8,max=14)
+epsilonA = rnorm(nA, mean = 0, sd =60)
+YA = beta0A + beta1A*XA + epsilonA
+dfA = data.frame(cbind(XA,YA))
+
+# Subgroup B
+nB = 150
+beta0B = 5
+beta1B = -20
+XB = runif(nB,min=5,max=15)
+epsilonB = rnorm(nB, mean = 2, sd =52)
+YB = beta0B + beta1B*XB + epsilonB
+dfB = data.frame(cbind(XB,YB))
+
+# Together
+XAB = append(XA,XB)
+YAB = append(YA,YB)
+dfAB = data.frame(cbind(XAB,YAB))
+
+# Plot
+ggplot(data=dfA,aes(x=XA,y=YA))+
+  geom_point(color='deepskyblue',size=1)+
+  geom_smooth(method='lm',se=FALSE,color="cornflowerblue")+
+  geom_point(data=dfB,aes(x=XB,y=YB),color='seagreen3',size=1)+
+  geom_smooth(data=dfB,aes(x=XB,y=YB),method='lm',se=FALSE,color='limegreen')+
+  geom_smooth(data=dfAB,aes(x=XAB,y=YAB),method='lm',se=FALSE,color='violet',linetype="twodash")+
+  xlab('x')+ylab('y')
+
+## SP Random Data
+# Subgroup A
+nA = 250
+beta0A = 2000
+beta1A = -150
+XA = runif(nA,min=4,max=20)
+epsilonA = rnorm(nA, mean = 0, sd =500)
+YA = beta0A + beta1A*XA + epsilonA
+dfA = data.frame(cbind(XA,YA))
+
+# Subgroup B
+nB = 300
+beta0B = -1
+beta1B = -230
+XB = runif(nB,min=5,max=10)
+epsilonB = rnorm(nB, mean = -10, sd =750)
+YB = beta0B + beta1B*XB + epsilonB
+dfB = data.frame(cbind(XB,YB))
+
+# Together
+XAB = append(XA,XB)
+YAB = append(YA,YB)
+dfAB = data.frame(cbind(XAB,YAB))
+
+# Plot
+ggplot(data=dfA,aes(x=XA,y=YA))+
+  geom_point(color='deepskyblue',size=1)+
+  geom_smooth(method='lm',se=FALSE,color="cornflowerblue")+
+  geom_point(data=dfB,aes(x=XB,y=YB),color='seagreen3',size=1)+
+  geom_smooth(data=dfB,aes(x=XB,y=YB),method='lm',se=FALSE,color='limegreen')+
+  geom_smooth(data=dfAB,aes(x=XAB,y=YAB),method='lm',se=FALSE,color='violet',linetype="twodash")+
+  xlab('x')+ylab('y')
+
+## Obvious SP Random Data
+# Subgroup A
+nA = 250
+beta0A = 7000
+beta1A = -150
+XA = runif(nA,min=50,max=70)
+epsilonA = rnorm(nA, mean = 100, sd =1500)
+YA = beta0A + beta1A*XA + epsilonA
+dfA = data.frame(cbind(XA,YA))
+
+# Subgroup B
+nB = 150
+beta0B = -5000
+beta1B = -500
+XB = runif(nB,min=15,max=30)
+epsilonB = rnorm(nB, mean = -50, sd =4300)
+YB = beta0B + beta1B*XB + epsilonB 
+dfB = data.frame(cbind(XB,YB))
+
+# Together
+XAB = append(XA,XB)
+YAB = append(YA,YB)
+dfAB = data.frame(cbind(XAB,YAB))
+
+# Plot
+ggplot(data=dfA,aes(x=XA,y=YA))+
+  geom_point(color='deepskyblue',size=1)+
+  geom_smooth(method='lm',se=FALSE,color="cornflowerblue")+
+  geom_point(data=dfB,aes(x=XB,y=YB),color='seagreen3',size=1)+
+  geom_smooth(data=dfB,aes(x=XB,y=YB),method='lm',se=FALSE,color='limegreen')+
+  geom_smooth(data=dfAB,aes(x=XAB,y=YAB),method='lm',se=FALSE,color='violet',linetype="twodash")+
+  xlab('x')+ylab('y')
+```
+
+Algorithm 1: simpDetector
+```{r}
+simpDetector = function(data,xVar,yVar){
+  data = na.omit(data) # remove NA values
+  
+  ## Determine Aggregated Correlation
+  a=data[[xVar]]
+  b=data[[yVar]]
+  aggCor = cor(a,b)
+  print(paste0('Aggregated Correlation: ',aggCor))
+  cs = data[names(data) %in% c(xVar,yVar)== FALSE] # data frame
+
+  # Find correlation of subgroups with categorical variables
+  corCoefs = list() # initialize list]
+  allSub = list() # initialize list
+  for (currentCol in cs){
+    if (class(currentCol)=="factor"){
+        subs = unique(currentCol)
+        for (s in subs){
+          allSub=c(allSub,s)
+          subDf = data %>% filter(currentCol == s)
+          subx=subDf[[xVar]]
+          suby=subDf[[yVar]]
+          subCor = cor(subx,suby)
+          corCoefs = c(corCoefs, subCor)
+        }
+    }
+  }
+  
+  # Test if reversal 
+  ind = 1 # index to find string 
+  sp = FALSE
+  if (length(corCoefs>0)){
+    if (aggCor > 0){
+        for (cc in corCoefs){
+          if(cc<0){
+            print(paste0(paste0(paste0("Simpson\'s Paradox detected: ",corCoefs[[ind]]),", "),allSub[[ind]]))
+            sp=TRUE
+          }
+        ind = ind+1
+        }
+    }
+    else if (aggCor < 0){
+      for (cc in corCoefs){
+        if(cc>0){
+          print(paste0(paste0(paste0("Simpson\'s Paradox detected: ",corCoefs[[ind]]),", "),allSub[[ind]]))
+          sp=TRUE
+        }
+        ind = ind+1
+      }
+    }
+  }
+  if (sp == FALSE){
+    print("Simpson\'s Paradox is not detected.")
+  }
+}
+
+# test
+data(iris)
+simpDetector(iris,'Sepal.Length','Sepal.Width') 
+simpDetector(auto_mpg,'mpg','acceleration') # not true due to factors in the numeric form
+```
+Algorithm 2: Integer Factors
+```{r}
+simpDetector2 = function(data,xVar,yVar,maxSubs){
+  data = na.omit(data) # remove NA values
+  
+  ## Determine Aggregated Correlation
+  a=na.omit(data[[xVar]])
+  b=na.omit(data[[yVar]])
+  aggCor = cor(a,b)
+  print(paste0('Aggregated Correlation: ',aggCor))
+  cs = data[names(data) %in% c(xVar,yVar)== FALSE] # data frame
+  cNamesAll = names(cs)
+  
+  # Find correlation of subgroups with categorical variables
+  corCoefs = list() # initialize list
+  allSub = list() # initialize list
+  indName = 1
+  corName = list()
+    for (currentCol in cs){
+      continue = FALSE
+      currentCol = na.omit(currentCol)
+      subs = unique(currentCol) # unique values in column
+      if (class(subs)=="integer"){
+        if (length(subs) < maxSubs){
+          continue = TRUE
+        }
+      }else if (class(currentCol)=="factor"){
+        continue = TRUE
+      }else if (class(currentCol)=="character"){
+        if (length(subs) < maxSubs){
+          continue = TRUE
+        }
+      }else if (class(currentCol)=="numeric"){
+        if (length(subs) < maxSubs){
+          if (all(floor(currentCol)== currentCol)){
+            continue = TRUE
+          }
+        }
+      }
+      if (continue){
+        for (s in subs){
+          allSub=c(allSub,s)
+          subDf = data %>% filter(currentCol == s)
+          subx=subDf[[xVar]]
+          suby=subDf[[yVar]]
+          subCor = cor(subx,suby)
+          corCoefs = c(corCoefs, subCor)
+          corName = c(corName, cNamesAll[indName])
+        }
+      }
+      indName = indName + 1 
+    }
+  
+    # Test if reversal 
+    ind = 1 # index to find string 
+    sp = FALSE
+    if (length(corCoefs>0)){
+      if (aggCor > 0){
+        for (cc in corCoefs){
+          if(!is.na(cc < 0) && cc<0){
+            print(paste0(paste0(paste0(paste0(paste0("Simpson\'s Paradox detected: ",corCoefs[[ind]]),", "),allSub[[ind]])," "),corName[ind]))
+            sp=TRUE
+          }
+          ind = ind+1
+        }
+    }else if (aggCor < 0){
+      for (cc in corCoefs){
+        if(!is.na(cc > 0) && cc>0){
+          print(paste0(paste0(paste0(paste0(paste0("Simpson\'s Paradox detected: ",corCoefs[[ind]]),", "),allSub[[ind]])," "),corName[ind]))
+          sp=TRUE
+        }
+        ind = ind+1
+      }
+    }
+  }
+  
+  # not SP
+  if (sp == FALSE){
+    print("Simpson\'s Paradox is not detected.")
+  }
+}
+
+# test
+data(auto_mpg)
+simpDetector2(auto_mpg,'acceleration','mpg',15)
+data(iris)
+simpDetector2(iris,'Sepal.Length','Sepal.Width',1)
+```
